@@ -1,0 +1,540 @@
+  :root {
+    --ovlk-bg:    #0a2230;
+    --ovlk-bg-55: rgba(10,34,48,0.55);
+    --ovlk-bg-70: rgba(10,34,48,0.70);
+    --ovlk-accent:#4a9d97;
+  }
+
+  html, body { margin: 0; background: var(--ovlk-bg); color: #fff; }
+  body {
+    font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    /* Geist stylistic alternates + cv11 — softer 'a' and lowercase 'l' */
+    font-feature-settings: "ss01", "ss02", "ss03", "cv11";
+    font-variant-numeric: tabular-nums;
+  }
+  * { box-sizing: border-box; }
+
+  /* Mono inherits tabular-nums automatically */
+  code, .mono, [style*="Geist Mono"] {
+    font-variant-ligatures: none;
+    font-feature-settings: "tnum", "ss01";
+  }
+
+  /* Heading kerning + balance text wrap on titles */
+  h1, h2, h3, h4 {
+    font-feature-settings: "ss01", "ss02", "ss03", "cv11";
+    font-kerning: normal;
+    text-wrap: balance;
+  }
+  /* Body paragraphs — calm reading rhythm */
+  p { text-wrap: pretty; }
+
+  *::selection { background: rgba(255,255,255,0.18); color: #fff; }
+
+  /* ====================================================
+     Apple-style motion system
+     ----------------------------------------------------
+     - Single easing curve everywhere: cubic-bezier(0.32, 0.72, 0, 1)
+       (Apple's standard product easing — fast start, long settle)
+     - Reveals: 720ms, 14px translate, staggered per row.
+     - Hover/state changes: 280ms, same easing.
+     - Press feedback: 160ms.
+     ==================================================== */
+  :root {
+    --apple-ease:  cubic-bezier(0.32, 0.72, 0, 1);
+    /* Spring overshoot — the "haptic" curve. Lifted from the monolog
+       reference (data-btn-default). Used on transform only — anything
+       colour or opacity stays on apple-ease so it doesn't wobble. */
+    --ovlk-spring: cubic-bezier(0.48, 1.68, 0.64, 1);
+    /* Long settle — opacity / sweep underlines. */
+    --ovlk-glide:  cubic-bezier(0.16, 1, 0.35, 1);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 560ms var(--apple-ease),
+      transform 560ms var(--apple-ease);
+    will-change: opacity, transform;
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Sequenced reveal — within a section, children stagger gently */
+  section .reveal:nth-of-type(2).is-in { transition-delay: 40ms; }
+  section .reveal:nth-of-type(3).is-in { transition-delay: 80ms; }
+  section .reveal:nth-of-type(4).is-in { transition-delay: 120ms; }
+  section .reveal:nth-of-type(5).is-in { transition-delay: 160ms; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.is-in { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* Universal interactive transition — spring on transform, apple-ease on
+     everything else. Anything tagged button / role=button / .ovlk-press
+     inherits the haptic press automatically. Wrapped in :where() so
+     custom button classes (.ovlk-btn-primary etc) win without
+     specificity gymnastics. */
+  :where(.ovlk-press, button, [role="button"]) {
+    transition: transform 320ms var(--ovlk-spring),
+                background-color 220ms var(--apple-ease),
+                border-color 220ms var(--apple-ease),
+                color 220ms var(--apple-ease),
+                box-shadow 320ms var(--ovlk-spring),
+                opacity 220ms var(--apple-ease);
+  }
+  :where(button:not(:disabled), [role="button"], .ovlk-press):active {
+    transform: scale(0.965);
+    transition-duration: 110ms, 220ms, 220ms, 220ms, 110ms, 220ms;
+  }
+
+  /* ====================================================
+     Haptic button system
+     ----------------------------------------------------
+     Two button styles + one link style. All share the spring
+     transform curve so the press / hover feels physical.
+
+     .ovlk-btn-primary  — cream pill + mint accent aside. The
+                          flagship CTA (Start a project, Send,
+                          Next). Sits on a soft offset shadow
+                          that grows on hover and collapses on
+                          press.
+     .ovlk-btn-ghost    — bordered transparent, mono uppercase.
+                          Secondary actions inside cards (Next
+                          step, Send another).
+     .ovlk-link-sweep   — inline link with a hairline underline
+                          that grows L→R on hover, snaps back
+                          R→L on leave. The design system's
+                          signature link.
+     ==================================================== */
+
+  .ovlk-btn-primary {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0 0 0 16px;
+    height: 36px;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.22);
+    cursor: pointer;
+    text-decoration: none;
+    user-select: none;
+    /* Faint resting shadow — just enough to suggest it lifts */
+    box-shadow: 0 3px 0 0 rgba(255,255,255,0.10);
+    transform: translateY(0);
+    transition:
+      transform 360ms var(--ovlk-spring),
+      box-shadow 360ms var(--ovlk-spring),
+      background-color 220ms ease,
+      color 220ms ease,
+      border-color 220ms ease,
+      opacity 220ms ease;
+  }
+  /* On hover the whole pill lights up with the current accent */
+  .ovlk-btn-primary:hover {
+    transform: translateY(-2px);
+    background: var(--ovlk-accent, #4a9d97);
+    border-color: var(--ovlk-accent, #4a9d97);
+    color: #0a1a26;
+    box-shadow: 0 6px 0 0 color-mix(in oklab, var(--ovlk-accent, #4a9d97) 60%, transparent),
+                0 14px 32px -10px color-mix(in oklab, var(--ovlk-accent, #4a9d97) 70%, transparent);
+  }
+  .ovlk-btn-primary:active {
+    transform: translateY(3px) scale(0.985);
+    background: var(--ovlk-accent, #4a9d97);
+    border-color: var(--ovlk-accent, #4a9d97);
+    color: #0a1a26;
+    box-shadow: 0 0 0 0 rgba(255,255,255,0.0);
+    transition-duration: 110ms, 110ms, 220ms, 220ms, 220ms, 220ms;
+  }
+  .ovlk-btn-primary:focus-visible {
+    outline: 2px solid var(--ovlk-accent, #4a9d97);
+    outline-offset: 4px;
+  }
+  .ovlk-btn-primary .ovlk-btn-label {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 14px;
+  }
+  /* Aside — subtle hairline well at rest, fills white on hover so the
+     arrow icon stays legible against the now-accent button. Both arrows
+     are stacked; on hover the first flies off ↗ while the second
+     enters from ↙. */
+  .ovlk-btn-primary .ovlk-btn-aside {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    margin: 3px 3px 3px 0;
+    flex: 0 0 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    overflow: hidden;
+    transition: background 220ms ease, color 220ms ease;
+  }
+  .ovlk-btn-primary:hover .ovlk-btn-aside,
+  .ovlk-btn-primary:active .ovlk-btn-aside {
+    background: #0a1a26;
+    color: var(--ovlk-accent, #4a9d97);
+  }
+  .ovlk-btn-primary .ovlk-btn-arrow {
+    width: 12px;
+    height: 12px;
+    display: block;
+    transition: transform 380ms var(--ovlk-spring),
+                opacity 280ms var(--ovlk-glide);
+  }
+  .ovlk-btn-primary .ovlk-btn-arrow.is-incoming {
+    position: absolute;
+    transform: translate(-110%, 110%);
+    opacity: 0;
+  }
+  .ovlk-btn-primary:hover .ovlk-btn-arrow.is-outgoing {
+    transform: translate(110%, -110%);
+    opacity: 0;
+  }
+  .ovlk-btn-primary:hover .ovlk-btn-arrow.is-incoming {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+
+  /* Disabled primary — locked, no haptic */
+  .ovlk-btn-primary[disabled],
+  .ovlk-btn-primary[aria-disabled="true"] {
+    background: transparent;
+    border-color: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.30);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .ovlk-btn-primary[disabled]:hover,
+  .ovlk-btn-primary[aria-disabled="true"]:hover {
+    transform: none;
+    background: transparent;
+    border-color: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.30);
+    box-shadow: none;
+  }
+  .ovlk-btn-primary[disabled] .ovlk-btn-aside,
+  .ovlk-btn-primary[aria-disabled="true"] .ovlk-btn-aside {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.20);
+  }
+
+  /* Ghost variant — bordered transparent, white text. Used for
+     secondary actions inside dark cards. Same haptic timing. */
+  .ovlk-btn-ghost {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 11px 18px;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.22);
+    cursor: pointer;
+    text-decoration: none;
+    user-select: none;
+    box-shadow: 0 3px 0 0 rgba(255,255,255,0.12);
+    transform: translateY(0);
+    transition:
+      transform 360ms var(--ovlk-spring),
+      box-shadow 360ms var(--ovlk-spring),
+      background-color 220ms ease,
+      border-color 220ms ease,
+      color 220ms ease,
+      opacity 220ms ease;
+  }
+  .ovlk-btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: var(--ovlk-accent, #4a9d97);
+    background: rgba(74,157,151,0.10);
+    box-shadow: 0 5px 0 0 rgba(74,157,151,0.35);
+  }
+  .ovlk-btn-ghost:active {
+    transform: translateY(2px) scale(0.985);
+    box-shadow: 0 0 0 0 rgba(255,255,255,0.0);
+    transition-duration: 110ms, 110ms, 220ms, 220ms, 220ms, 220ms;
+  }
+  .ovlk-btn-ghost[disabled] {
+    opacity: 0.32;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .ovlk-btn-ghost[disabled]:hover {
+    transform: none;
+    border-color: rgba(255,255,255,0.22);
+    background: transparent;
+    box-shadow: none;
+  }
+  .ovlk-btn-ghost .ovlk-btn-arrow-inline {
+    display: inline-block;
+    transition: transform 360ms var(--ovlk-spring);
+  }
+  .ovlk-btn-ghost:hover .ovlk-btn-arrow-inline { transform: translateX(4px); }
+  .ovlk-btn-ghost.is-back:hover .ovlk-btn-arrow-inline { transform: translateX(-4px); }
+
+  /* Link sweep — used by nav items, footer links, ghost text
+     buttons. The underline grows from the leading edge on hover
+     and snaps from the trailing edge on leave. */
+  .ovlk-link-sweep {
+    position: relative;
+    display: inline-block;
+    color: rgba(255,255,255,0.62);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    padding-bottom: 3px;
+    transition: background-size 360ms var(--ovlk-glide),
+                color 220ms ease;
+  }
+  .ovlk-link-sweep:hover {
+    color: #fff;
+    background-size: 100% 1px;
+  }
+  .ovlk-link-sweep.is-active {
+    color: #fff;
+    background-size: 100% 1px;
+    background-image: linear-gradient(var(--ovlk-accent, #4a9d97), var(--ovlk-accent, #4a9d97));
+  }
+
+  /* Tactile chip — pill button with spring press. Used by the
+     timeline + budget chips on the contact form. */
+  .ovlk-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: transparent;
+    color: rgba(255,255,255,0.78);
+    border: 1px solid rgba(255,255,255,0.15);
+    font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    user-select: none;
+    transform: translateY(0);
+    transition:
+      transform 320ms var(--ovlk-spring),
+      background-color 220ms ease,
+      border-color 220ms ease,
+      color 220ms ease;
+  }
+  .ovlk-chip:hover { border-color: rgba(255,255,255,0.42); transform: translateY(-1px); }
+  .ovlk-chip:active { transform: translateY(1px) scale(0.97); transition-duration: 100ms; }
+  .ovlk-chip.is-active {
+    border-color: var(--ovlk-accent, #4a9d97);
+    background: rgba(74,157,151,0.18);
+    color: #fff;
+  }
+  .ovlk-chip.is-active::before {
+    content: "";
+    width: 6px; height: 6px;
+    background: var(--ovlk-accent, #4a9d97);
+    box-shadow: 0 0 8px var(--ovlk-accent, #4a9d97);
+    animation: ovlk-chip-pop 360ms var(--ovlk-spring) both;
+  }
+  @keyframes ovlk-chip-pop {
+    0%   { transform: scale(0); opacity: 0; }
+    60%  { transform: scale(1.4); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Tactile card — KIND radio cards on contact form. Lifts on
+     hover with a coloured rail at the top. */
+  .ovlk-tcard {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 28px 22px 26px;
+    text-align: left;
+    cursor: pointer;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+    transform: translateY(0);
+    transition:
+      transform 320ms var(--ovlk-spring),
+      background-color 240ms ease;
+  }
+  .ovlk-tcard::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--ovlk-accent, #4a9d97);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 380ms var(--ovlk-glide);
+  }
+  .ovlk-tcard:hover {
+    background: rgba(255,255,255,0.025);
+    transform: translateY(-3px);
+  }
+  .ovlk-tcard:active { transform: translateY(1px) scale(0.99); transition-duration: 100ms; }
+  .ovlk-tcard.is-active { background: rgba(255,255,255,0.05); }
+  .ovlk-tcard.is-active::before { transform: scaleX(1); }
+  .ovlk-tcard .ovlk-tcard-icon {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 26px;
+    color: rgba(255,255,255,0.5);
+    transition: color 240ms ease, transform 360ms var(--ovlk-spring);
+    align-self: flex-start;
+  }
+  .ovlk-tcard:hover .ovlk-tcard-icon { transform: rotate(45deg); }
+  .ovlk-tcard.is-active .ovlk-tcard-icon {
+    color: var(--ovlk-accent, #4a9d97);
+    transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ovlk-btn-primary, .ovlk-btn-ghost, .ovlk-chip, .ovlk-tcard,
+    .ovlk-btn-arrow, .ovlk-btn-arrow-inline {
+      transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease !important;
+      transform: none !important;
+      box-shadow: none !important;
+      animation: none !important;
+    }
+  }
+
+  /* Sections live on a unified surface — no harsh dividers, the bg
+     flows between them. Breathing room is the only separator. */
+  section { position: relative; scroll-snap-align: start; scroll-snap-stop: normal; }
+
+  /* Scroll-snap: each section snaps into focus like a page break.
+     `proximity` keeps it gentle — only engages when scroll settles near
+     a snap point, so flicks/drags pass through freely. */
+  html {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 0;
+  }
+  /* Footer + tweaks panel shouldn't pull focus */
+  footer { scroll-snap-align: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-snap-type: none; }
+  }
+  /* Disable snap on short viewports where it would jail short content */
+  @media (max-height: 600px) {
+    html { scroll-snap-type: none; }
+  }
+
+  /* Process-section animations — refined timing */
+  @keyframes pv-pop {
+    0%   { opacity: 0; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pv-fade-in {
+    0%   { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pv-rise {
+    0%   { opacity: 0; transform: scaleY(0); }
+    100% { opacity: 1; transform: scaleY(1); }
+  }
+  @keyframes pv-draw {
+    0%   { stroke-dashoffset: 100%; opacity: 0; }
+    20%  { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+  }
+  @keyframes pv-progress {
+    0%   { stroke-dasharray: 0 400; }
+    100% { stroke-dasharray: 400 0; }
+  }
+  @keyframes pv-pulse {
+    0%, 100% { opacity: 0.25; r: 1.6; }
+    50%      { opacity: 1;    r: 3; }
+  }
+  @keyframes pv-msg {
+    0%   { stroke-dashoffset: 24; opacity: 0; }
+    50%  { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 0.45; }
+  }
+  @keyframes pv-travel {
+    0%   { transform: translate(160px, 110px); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translate(380px, 110px); opacity: 1; }
+  }
+  @keyframes pv-dash {
+    0% { stroke-dashoffset: 24; }
+    100% { stroke-dashoffset: 0; }
+  }
+  .pv-pop      { animation: pv-pop 520ms var(--apple-ease) both; transform-origin: center; }
+  .pv-fade-in  { animation: pv-fade-in 460ms var(--apple-ease) both; }
+  .pv-rise     { animation: pv-rise 560ms var(--apple-ease) both; }
+  .pv-draw-rect, .pv-draw-line {
+    stroke-dasharray: 100%; stroke-dashoffset: 100%;
+    animation: pv-draw 820ms var(--apple-ease) both;
+  }
+  .pv-progress { stroke-dasharray: 0 400; animation: pv-progress 2200ms var(--apple-ease) 200ms both; }
+  .pv-pulse    { animation: pv-pulse 1600ms ease-in-out infinite both; }
+  .pv-msg      { stroke-dashoffset: 24; animation: pv-msg 2000ms linear infinite both; }
+  .pv-travel   { animation: pv-travel 2000ms var(--apple-ease) 200ms infinite both; }
+  .pv-dash     { stroke-dasharray: 4 4; animation: pv-dash 800ms linear infinite both; }
+
+  .process-fade-in {
+    animation: pv-fade-in 460ms var(--apple-ease) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pv-pop, .pv-fade-in, .pv-rise, .pv-draw-rect, .pv-draw-line,
+    .pv-progress, .pv-pulse, .pv-msg, .pv-travel, .pv-dash, .process-fade-in {
+      animation: none !important;
+      opacity: 1 !important;
+      stroke-dashoffset: 0 !important;
+      stroke-dasharray: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Scrollbar — quiet white */
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track { background: var(--ovlk-bg); }
+  *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); }
+  *::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+  /* Smooth scrolling for in-page nav */
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid var(--ovlk-accent);
+    outline-offset: 3px;
+  }
+  input:focus, textarea:focus, button:focus { outline: none; }
+  input:focus, textarea:focus {
+    border-bottom-color: var(--ovlk-accent) !important;
+  }
+
+  /* Hide cursor when our custom cursor is on (only on fine pointer) */
+  @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    body.ovlk-cursor-active, body.ovlk-cursor-active * { /* keep native cursor — halo augments */ }
+  }

@@ -1,0 +1,191 @@
+/* ============================================================
+   Overlook Strategy — Software
+   Colors + Typography tokens
+   --------------------------------------------------------------
+   Lifted from src/app/globals.css in the orbital codebase
+   (Tailwind v4 @theme model, CSS-first). Translated into plain
+   CSS custom properties so non-Tailwind artifacts can use them.
+
+   Aesthetic: warm-cream paper, ink-navy type, single tide-mint
+   highlight. Hairline rules. Mono meta, serif display, sans body.
+   ============================================================ */
+
+@font-face {
+  font-family: "Libre Caslon Text";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Libre Caslon Text");
+}
+
+:root {
+  /* --------- Palette: paper + fog (neutrals) ------------- */
+  --color-bg:           #fbfaf7; /* paper-100 — warm cream page */
+  --color-bg-elevated:  #ffffff; /* paper-50  — hero / card surface */
+  --color-paper-200:    #f2f4f2;
+  --color-fog-100:      #efedea;
+  --color-rule:         #e2e4e1; /* paper-300 — workhorse hairline */
+  --color-rule-soft:    #ece8df; /* paper-200 warmed — almost-vanishing */
+  --color-mute-deep:    #c9c7bf; /* fog-300   — least prominent meta on cream */
+  --color-mute:         #2a2d31; /* fog-800   — captions / meta, darker */
+
+  /* --------- Palette: ink (text) — darker, moodier ------- */
+  --color-ink:          #05080d; /* ink-900   — near-black primary text */
+  --color-ink-soft:     #0c1a2c; /* ink-700   — deep midnight secondary */
+  --color-ink-slate:    #131c26; /* ink-600   — graphite slate */
+  --color-ink-mist:     #4a5663; /* ink-400   — cooler dark mist */
+
+  /* --------- Palette: tide / pacific (mint accents) ------ */
+  --color-mint:         #4a9d97; /* tide-500  — the single highlight */
+  --color-mint-deep:    #2f6e7b; /* pacific-600 — link hover, deep accent */
+  --color-tide-300:     #93c2bd;
+  --color-pacific-200:  #b6cdd2;
+  --color-pacific-800:  #134852;
+
+  /* --------- Palette: warm + signal (sparing) ------------ */
+  --color-accent-warm:  #916b3a; /* sand-600 — sparing warm accent */
+  --color-sunset:       #c85a3f; /* signal-sunset — shader warm anchor */
+
+  /* --------- Inverse mode (used by ContactCta etc) ------- */
+  --color-bg-inverse:   #0a2230; /* abyss-deep — unified surface for the kit */
+  --color-fg-inverse:   #ffffff;
+
+  /* ============================================================
+     Typography
+     ============================================================ */
+  --font-sans:
+    "Geist", "Geist Fallback", "Inter", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:
+    "Cormorant Garamond", "Libre Caslon Text", ui-serif, Georgia, serif;
+  --font-editorial:
+    "Cormorant Garamond", "Libre Caslon Text", ui-serif, Georgia, serif;
+  --font-mono:
+    "Geist Mono", "Geist Mono Fallback", "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-display:
+    "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+
+  /* Tracking — only two values exist in the system */
+  --tracking-eyebrow: 0.18em; /* nav, eyebrows, CTA labels */
+  --tracking-meta:    0.28em; /* footer meta, coordinates */
+
+  /* Layout containers */
+  --container-narrow:   64rem;
+  --container-default:  80rem;
+  --container-wide:     90rem;
+
+  /* Motion */
+  --ease-out-expo:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --char-stagger:   22ms;
+
+  /* ============================================================
+     Semantic role tokens — use these in product code
+     ============================================================ */
+  --fg-1: var(--color-ink);        /* primary text */
+  --fg-2: var(--color-ink-soft);   /* secondary text */
+  --fg-3: var(--color-mute);       /* captions, meta */
+  --fg-4: var(--color-mute-deep);  /* faintest meta on cream */
+  --bg-1: var(--color-bg);         /* page */
+  --bg-2: var(--color-bg-elevated);/* cards, hero surface */
+  --rule-1: var(--color-rule);
+  --rule-2: var(--color-rule-soft);
+  --accent: var(--color-mint);
+  --accent-deep: var(--color-mint-deep);
+}
+
+/* ============================================================
+   Semantic type roles
+   The system has three families and only a handful of sizes —
+   most type uses clamp() for fluid scaling. Letter-spacing is
+   tight on display, wide on monospace eyebrows. Sentence case
+   for body, UPPERCASE for eyebrows / meta only.
+   ============================================================ */
+
+/* Display — DM Mono, minimalist mono display. Uppercase, tight.
+   Hero range: clamp(2.5rem, 7vw, 6.5rem). No italic. */
+.t-display, h1.os {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+.t-display em { font-style: normal; }
+
+/* Section title — Caslon, less aggressive scale */
+.t-h2, h2.os {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+
+/* Sub-section / featured pull — used in IntroBlock, FeaturedWork */
+.t-h3, h3.os {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3.4vw, 2.6rem);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+/* Card title in a list */
+.t-h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 2.4vw, 1.85rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+/* Body — Inter, sentence case, relaxed leading */
+.t-body, p.os {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.05vw, 1.125rem);
+  line-height: 1.6;
+  color: var(--color-ink-soft);
+  font-feature-settings: "ss01", "cv11";
+  font-variant-numeric: tabular-nums;
+}
+.t-body-sm {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-ink-soft);
+}
+
+/* Eyebrow — UPPERCASE mono, 11px, 0.18em tracking. The most
+   distinctive recurring detail of the system. */
+.t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-mute);
+  font-weight: 400;
+}
+
+/* Meta — even smaller mono, even wider tracking. Coordinates,
+   version stamps, footer copyright. */
+.t-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-mute-deep);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inline code / mono in body */
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  font-feature-settings: "tnum";
+}

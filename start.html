@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OVLK / TECH — Start a project</title>
+
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="styles.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* Page-specific overrides — disable the scroll-snap from the
+     homepage (this is a single-screen form, no sections to snap
+     between) and pin the form column. */
+  html { scroll-snap-type: none; }
+
+  .sap-page {
+    min-height: 100svh;
+    background: var(--ovlk-bg, #0a2230);
+    color: #fff;
+    position: relative;
+    overflow-x: hidden;
+  }
+  .sap-page-graph {
+    position: fixed; inset: 0;
+    opacity: 0.22; pointer-events: none; z-index: 0;
+  }
+  .sap-page-vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 65% 80% at 22% 50%, var(--ovlk-bg, #0a2230) 0%,
+        var(--ovlk-bg-70, rgba(10,34,48,0.72)) 45%, transparent 80%);
+  }
+
+  /* Minimal nav — just the mark + back link */
+  .sap-nav {
+    position: relative; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+    padding: 0 36px;
+    max-width: 90rem; margin: 0 auto;
+  }
+  .sap-nav-mark {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 11.5px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: #fff; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .sap-nav-mark .sap-divider { color: rgba(255,255,255,0.32); margin: 0 -2px; }
+  .sap-nav-mark svg rect { transition: fill 240ms ease; }
+  .sap-nav-mark:hover svg rect { fill: var(--ovlk-accent, #4a9d97); }
+
+  /* Centred shell */
+  .sap-shell {
+    position: relative; z-index: 2;
+    max-width: 64rem; margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* Lede — eyebrow + headline + deck — sits above the form */
+  .sap-eyebrow {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    display: inline-flex; align-items: center; gap: 14px;
+  }
+  .sap-eyebrow .sap-dot { color: var(--ovlk-accent, #4a9d97); }
+  .sap-eyebrow .sap-sep { color: rgba(255,255,255,0.35); }
+  .sap-h1 {
+    font-family: "Geist", "Helvetica Neue", sans-serif;
+    font-weight: 500;
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    line-height: 0.98; letter-spacing: -0.045em;
+    color: #fff; margin: 28px 0 0;
+    max-width: 16ch; text-wrap: balance;
+  }
+  .sap-deck {
+    margin: 24px 0 0; max-width: 42rem;
+    font-family: "Geist", sans-serif;
+    font-size: 17px; line-height: 1.6;
+    color: rgba(255,255,255,0.72);
+    letter-spacing: -0.005em;
+  }
+
+  .sap-form-wrap { margin-top: 56px; }
+
+  /* Footer-y meta strip — channels parallel to the form */
+  .sap-meta {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px;
+  }
+  .sap-meta-label {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin: 0;
+  }
+  .sap-meta-value {
+    margin: 12px 0 0;
+    font-family: "Geist", sans-serif;
+    font-size: 14px; color: rgba(255,255,255,0.85);
+  }
+
+  @media (max-width: 720px) {
+    .sap-meta { grid-template-columns: 1fr 1fr; gap: 24px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="flow.js"></script>
+<script type="text/babel" src="graph.jsx"></script>
+<script type="text/babel" src="contact.jsx"></script>
+
+<script type="text/babel">
+  /* Start a project — standalone onboarding page.
+     Hosts the same multi-step ProjectForm the homepage used to render
+     inline, with a quieter chrome and a back-link to home. */
+
+  function StartProjectApp() {
+    // Page-local accent — matches the homepage default. Both pages
+    // read --ovlk-accent off the :root variable so future edits stay
+    // one place.
+    const accent = getComputedStyle(document.documentElement)
+                     .getPropertyValue('--ovlk-accent').trim() || '#4a9d97';
+
+    return (
+      <div className="sap-page" data-screen-label="Start a project">
+        <div className="sap-page-graph">
+          <ObsidianGraph interactive={false} />
+        </div>
+        <div className="sap-page-vignette" />
+
+        <header className="sap-nav">
+          <a href="/" className="sap-nav-mark">
+            <svg width="14" height="14" viewBox="0 0 14 14">
+              <rect x="2.5" y="2.5" width="9" height="9"
+                transform="rotate(45 7 7)"
+                fill="none" stroke="currentColor" strokeWidth="1" />
+            </svg>
+            <span>OVLK</span>
+            <span className="sap-divider">/</span>
+            <span>TECH</span>
+          </a>
+          <a href="/" className="ovlk-btn-ghost is-back">
+            <span className="ovlk-btn-arrow-inline" aria-hidden="true">←</span>
+            <span>Back to home</span>
+          </a>
+        </header>
+
+        <main className="sap-shell">
+          <span className="sap-eyebrow">
+            <span className="sap-dot">05</span>
+            <span className="sap-sep">//</span>
+            <span>Start a project</span>
+          </span>
+
+          <h1 className="sap-h1">Tell us what you're building.</h1>
+          <p className="sap-deck">
+            Four short steps — what kind of project, the shape of it, and
+            how to reach you. Takes a minute. We answer within a working
+            day, usually the same one.
+          </p>
+
+          <div className="sap-form-wrap">
+            <ProjectForm accent={accent} />
+          </div>
+
+          <div className="sap-meta">
+            <div>
+              <p className="sap-meta-label">Email</p>
+              <a className="ovlk-link-sweep sap-meta-value" href="mailto:studio@ovlk.tech"
+                 style={{ color: '#fff' }}>studio@ovlk.tech</a>
+            </div>
+            <div>
+              <p className="sap-meta-label">Studio</p>
+              <p className="sap-meta-value">Ventura, California</p>
+            </div>
+            <div>
+              <p className="sap-meta-label">Response</p>
+              <p className="sap-meta-value">Within a working day</p>
+            </div>
+            <div>
+              <p className="sap-meta-label">Reference</p>
+              <p className="sap-meta-value" style={{
+                fontFamily: '"Geist Mono", ui-monospace, monospace',
+                fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.55)',
+              }}>v0.1 // built at the coast</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<StartProjectApp />);
+</script>
+</body>
+</html>
