@@ -37,7 +37,7 @@ function ContactSection({ density, accent }) {
   const py = density === "compact" ? 120 : 180;
 
   return (
-    <section id="contact" data-screen-label="Contact" style={{
+    <section id="contact" className="ovlk-section" data-screen-label="Contact" style={{
       position: "relative",
       padding: `${py}px 0 ${py - 60}px`,
       background: "var(--ovlk-bg, #0a2230)",
@@ -53,7 +53,7 @@ function ContactSection({ density, accent }) {
           "radial-gradient(ellipse 65% 80% at 18% 50%, var(--ovlk-bg, #0a2230) 0%, var(--ovlk-bg-70, rgba(10,34,48,0.7)) 45%, transparent 80%)",
       }} />
 
-      <div style={{ position: "relative", zIndex: 2, maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
+      <div className="ovlk-pad" style={{ position: "relative", zIndex: 2, maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
         {/* Eyebrow */}
         <span className="reveal" style={{
           ...META_C, color: TEXT_C_MUTE,
@@ -76,7 +76,7 @@ function ContactSection({ density, accent }) {
         }}>Tell us what you're building.</h2>
 
         {/* Lede + CTA pair */}
-        <div className="reveal" style={{
+        <div className="reveal ovlk-cols-2" style={{
           marginTop: 56,
           display: "grid", gridTemplateColumns: "1.4fr 1fr",
           gap: 56, alignItems: "end",
@@ -89,7 +89,7 @@ function ContactSection({ density, accent }) {
             We take a few projects at a time. Tell us what you're shaping and
             we'll come back to you within a working day — usually the same one.
           </p>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div className="ovlk-cta-row" style={{ display: "flex", justifyContent: "flex-end" }}>
             <a href="/start"
                className="ovlk-btn-primary"
                style={{ whiteSpace: "nowrap", height: 44, fontSize: 12 }}>
@@ -112,7 +112,7 @@ function ContactSection({ density, accent }) {
         </div>
 
         {/* Alt-channel meta row */}
-        <div className="reveal" style={{
+        <div className="reveal ovlk-cols-4" style={{
           marginTop: 80, paddingTop: 32, borderTop: RULE_C,
           display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 48,
         }}>
@@ -276,7 +276,7 @@ function StepKind({ kind, setKind, accent }) {
       <p style={{
         ...META_C, color: TEXT_C_MUTE, margin: "0 0 28px",
       }}>What kind of project?</p>
-      <div style={{
+      <div className="ovlk-kind-grid" style={{
         display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
         gap: 0,
         border: RULE_C,
@@ -286,7 +286,7 @@ function StepKind({ kind, setKind, accent }) {
           return (
             <button key={k.id}
               onClick={() => setKind(k.id)}
-              className={"ovlk-tcard" + (isSel ? " is-active" : "")}
+              className={"ovlk-tcard ovlk-kind-card" + (isSel ? " is-active" : "")}
               style={{
                 borderRight: i < KINDS.length - 1 ? RULE_C : "none",
               }}>
@@ -420,7 +420,7 @@ function StepSent({ accent, summary, onReset }) {
         lineHeight: 1.15, color: "#fff",
       }}>Thanks, {summary.name || "friend"} — we'll be in touch within a working day.</h3>
 
-      <div style={{
+      <div className="ovlk-cols-4" style={{
         marginTop: 40, paddingTop: 28, borderTop: RULE_C,
         display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24,
       }}>
@@ -481,8 +481,8 @@ function PrimaryBtn({ onClick, disabled, sending, children }) {
 /* ---------- Footer ---------- */
 function Footer({ accent }) {
   return (
-    <footer style={{ padding: "96px 36px 40px", background: "var(--ovlk-bg, #0a2230)", borderTop: RULE_C }}>
-      <div style={{ maxWidth: "82rem", margin: "0 auto",
+    <footer className="ovlk-pad" style={{ padding: "96px 36px 40px", background: "var(--ovlk-bg, #0a2230)", borderTop: RULE_C }}>
+      <div className="ovlk-footer-grid" style={{ maxWidth: "82rem", margin: "0 auto",
         display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 32 }}>
         <div style={{ gridColumn: "span 4" }}>
           <p style={{ ...META_C, color: TEXT_C, margin: 0,
@@ -558,7 +558,7 @@ function Footer({ accent }) {
 
         <div style={{ gridColumn: "span 12", marginTop: 56, height: 1, background: "rgba(255,255,255,0.10)" }} />
 
-        <div style={{
+        <div className="ovlk-footer-base" style={{
           gridColumn: "span 12", marginTop: 16,
           display: "flex", justifyContent: "space-between",
           ...META_C, fontSize: 10, letterSpacing: "0.28em", color: TEXT_C_DEEP,

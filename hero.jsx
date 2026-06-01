@@ -19,7 +19,7 @@ function Hero({ variant = "graph", accent }) {
     }}>
       {variant === "graph" && (
         <>
-          <div style={{ position: "absolute", inset: 0, opacity: 0.92 }}>
+          <div className="ovlk-hero-graph" style={{ position: "absolute", inset: 0, opacity: 0.92 }}>
             <ObsidianGraph />
           </div>
           <div style={{
@@ -38,7 +38,7 @@ function Hero({ variant = "graph", accent }) {
       {variant === "type-only" && <TypeOnlyBackdrop accent={accent} />}
       {variant === "ticker" && <TickerBackdrop accent={accent} />}
 
-      <div style={{
+      <div className="ovlk-hero-inner" style={{
         position: "relative", zIndex: 2,
         padding: "108px 36px 44px",
         display: "flex", flexDirection: "column", justifyContent: "space-between",
@@ -94,7 +94,7 @@ function Hero({ variant = "graph", accent }) {
         {/* Bottom rule + legend */}
         <div className="hero-pe-on reveal">
           <div style={{ height: 1, background: "rgba(255,255,255,0.10)" }} />
-          <div style={{
+          <div className="ovlk-hero-legend" style={{
             display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr",
             gap: 36, paddingTop: 18,
           }}>

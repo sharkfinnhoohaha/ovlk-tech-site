@@ -98,6 +98,12 @@
       const wrap   = wrapRef.current;
       const ctx    = canvas.getContext("2d");
 
+      const mq = (q) => (window.matchMedia ? window.matchMedia(q).matches : false);
+      const reduceMotion = mq("(prefers-reduced-motion: reduce)");
+      const coarse       = mq("(pointer: coarse)");
+      // Hover interaction only makes sense with a fine pointer (desktop)
+      const canHover = interactive && !coarse;
+
       const idIdx = new Map(NODES.map((n, i) => [n.id, i]));
       const nodes = NODES.map((n, i) => ({ ...n, x: 0, y: 0, vx: 0, vy: 0, _seed: i }));
       const edges = EDGES
@@ -131,22 +137,31 @@
         stateRef.current = { w: r.width, h: r.height, dpr };
       }
       resize();
-      window.addEventListener("resize", resize);
+      window.addEventListener("resize", onResize, { passive: true });
 
-      // Initial spiral by cluster, biased right
+      // Layout centre — biased right on wide screens (room for hero copy
+      // on the left), centred on narrow screens so nothing clips off-edge.
+      function centre() {
+        const { w, h } = stateRef.current;
+        return { cx: w * (w < 760 ? 0.5 : 0.72), cy: h * 0.5 };
+      }
+
+      // Initial spiral by cluster. Radius scales to the viewport so the
+      // cloud fits a phone as gracefully as a desktop.
       const groups = ["web","apps","automate","infra","studio"];
       const groupAngle = Object.fromEntries(
         groups.map((g, i) => [g, (i / groups.length) * Math.PI * 2])
       );
       function layoutInit() {
-        const cx = stateRef.current.w * 0.72;
-        const cy = stateRef.current.h * 0.5;
+        const { cx, cy } = centre();
+        const base = Math.min(stateRef.current.w, stateRef.current.h);
         nodes.forEach((n, i) => {
           const ga = groupAngle[n.group];
-          const r0 = 180 + (i % 7) * 22;
-          const jitter = (Math.sin(i * 7.13) + Math.cos(i * 3.7)) * 60;
+          const r0 = base * 0.20 + (i % 7) * (base * 0.028);
+          const jitter = (Math.sin(i * 7.13) + Math.cos(i * 3.7)) * base * 0.07;
           n.x = cx + Math.cos(ga + (i * 0.31)) * (r0 + jitter);
           n.y = cy + Math.sin(ga + (i * 0.31)) * (r0 + jitter);
+          n.vx = 0; n.vy = 0;
         });
       }
       layoutInit();
@@ -156,30 +171,55 @@
         const mx = e.clientX - r.left;
         const my = e.clientY - r.top;
         const inBounds = mx >= 0 && mx <= r.width && my >= 0 && my <= r.height;
-        if (inBounds) { ix.mouseX = mx; ix.mouseY = my; }
-        else          { ix.mouseX = -9999; ix.mouseY = -9999; }
+        const had = ix.mouseX > -9000;
+        if (inBounds) { ix.mouseX = mx; ix.mouseY = my; start(); }
+        else if (had) { ix.mouseX = -9999; ix.mouseY = -9999; start(); }
+        // else: pointer is away from the graph (e.g. scrolled past) — stay parked
       }
-      function onLeave() { ix.mouseX = -9999; ix.mouseY = -9999; }
+      function onLeave() { ix.mouseX = -9999; ix.mouseY = -9999; start(); }
 
       // Window-level mousemove so nodes behind overlay text still react
-      if (interactive) {
+      if (canHover) {
         window.addEventListener("mousemove", onMove);
         canvas.addEventListener("mouseleave", onLeave);
       }
 
-      // ---- Tick ----
-      let raf, t = 0;
+      // ---- Loop control ----
+      // The graph settles, then we *stop* the rAF loop entirely — a static,
+      // calm cloud at rest instead of a forever-running simulation. Hover
+      // (desktop) or resize wakes it again; it re-settles and re-parks.
+      let raf = null, running = false, idleFrames = 0;
+      let t = 0;
       let labelAlpha    = 0;
       let lastHover     = -1;
       let hoverProgress = 0;
       let pulse         = 0;
 
-      function tick() {
-        const { w, h } = stateRef.current;
-        t += 1;
-        pulse += 0.022;
+      function start() {
+        if (running || reduceMotion) return;
+        running = true; idleFrames = 0;
+        raf = requestAnimationFrame(tick);
+      }
+      function stop() {
+        running = false;
+        if (raf) cancelAnimationFrame(raf);
+        raf = null;
+      }
 
-        // Repulsion + central gravity
+      let resizeTimer = null;
+      function onResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          resize();
+          if (reduceMotion) { settleStatic(); return; }
+          start(); // re-settle into the new centre
+        }, 150);
+      }
+
+      // Advance the force model one step; returns total kinetic energy.
+      function physicsStep() {
+        const { w, h } = stateRef.current;
+        const { cx, cy } = centre();
         for (let i = 0; i < nodes.length; i++) {
           const a = nodes[i];
           for (let j = i + 1; j < nodes.length; j++) {
@@ -194,12 +234,9 @@
             a.vx += fx; a.vy += fy;
             b.vx -= fx; b.vy -= fy;
           }
-          const cx = w * 0.72, cy = h * 0.5;
           a.vx += (cx - a.x) * 0.0011;
           a.vy += (cy - a.y) * 0.0009;
         }
-
-        // Edge springs
         for (const [ai, bi] of edges) {
           const a = nodes[ai], b = nodes[bi];
           const dx = b.x - a.x, dy = b.y - a.y;
@@ -210,21 +247,34 @@
           a.vx += fx; a.vy += fy;
           b.vx -= fx; b.vy -= fy;
         }
-
-        // Damping + integration + hover detection
-        let hover = -1, hoverDist = Infinity;
+        let energy = 0;
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
           n.vx *= 0.86; n.vy *= 0.86;
           n.x += n.vx;  n.y += n.vy;
-          // Breathing
-          n.x += Math.sin(t * 0.004 + n._seed) * 0.05;
-          n.y += Math.cos(t * 0.005 + n._seed * 1.3) * 0.05;
+          energy += n.vx * n.vx + n.vy * n.vy;
+        }
+        return energy;
+      }
 
-          if (interactive && ix.mouseX > -9000) {
+      // Reduced-motion / static instances: settle synchronously, paint once.
+      function settleStatic() {
+        for (let k = 0; k < 240; k++) physicsStep();
+        render(-1);
+      }
+
+      function tick() {
+        t += 1;
+        pulse += 0.022;
+        const energy = physicsStep();
+
+        // Hover detection (fine pointer only)
+        let hover = -1, hoverDist = Infinity;
+        if (canHover && ix.mouseX > -9000) {
+          for (let i = 0; i < nodes.length; i++) {
+            const n = nodes[i];
             const dx = n.x - ix.mouseX, dy = n.y - ix.mouseY;
             const d2 = dx*dx + dy*dy;
-            // Hit radius — generous for small nodes so every node is grabbable
             const hitR = Math.max(11, n.size + 6);
             if (d2 < hitR * hitR && d2 < hoverDist) { hover = i; hoverDist = d2; }
           }
@@ -239,6 +289,20 @@
         hoverProgress += (hoverTarget - hoverProgress) * 0.14;
         labelAlpha    += (hoverTarget - labelAlpha)    * 0.12;
 
+        render(hover);
+
+        // Park the loop once nothing's hovered. Fast-park when the layout
+        // has clearly settled; otherwise a hard frame cap guarantees we stop
+        // even if the force model keeps a tiny residual jitter forever.
+        const active = hover !== -1 || hoverProgress > 0.01;
+        if (active) idleFrames = 0; else idleFrames += 1;
+        const settled = energy < 0.08;
+        if (!active && idleFrames > (settled ? 20 : 280)) { stop(); return; }
+        raf = requestAnimationFrame(tick);
+      }
+
+      function render(hover) {
+        const { w, h } = stateRef.current;
         // ---- Render ----
         ctx.clearRect(0, 0, w, h);
 
@@ -345,15 +409,18 @@
           }
           ctx.globalAlpha = 1;
         }
-
-        raf = requestAnimationFrame(tick);
       }
-      tick();
+
+      // Boot: reduced-motion paints a single settled frame; everyone else
+      // runs the loop until it settles, then parks itself.
+      if (reduceMotion) settleStatic();
+      else start();
 
       return () => {
-        cancelAnimationFrame(raf);
-        window.removeEventListener("resize", resize);
-        if (interactive) {
+        stop();
+        clearTimeout(resizeTimer);
+        window.removeEventListener("resize", onResize);
+        if (canHover) {
           window.removeEventListener("mousemove", onMove);
           canvas.removeEventListener("mouseleave", onLeave);
         }

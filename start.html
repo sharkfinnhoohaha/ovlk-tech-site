@@ -110,16 +110,26 @@
     font-size: 14px; color: rgba(255,255,255,0.85);
   }
 
+  @media (max-width: 860px) {
+    .sap-nav   { padding: 0 22px; }
+    .sap-shell { padding: 40px 22px 72px; }
+  }
   @media (max-width: 720px) {
     .sap-meta { grid-template-columns: 1fr 1fr; gap: 24px; }
+  }
+  @media (max-width: 560px) {
+    .sap-meta { grid-template-columns: 1fr; gap: 20px; }
+    /* Shorten the back link so it doesn't crowd the mark on small phones */
+    .sap-nav .ovlk-btn-ghost span:last-child { display: none; }
+    .sap-nav .ovlk-btn-ghost { padding: 13px 16px; }
   }
 </style>
 </head>
 <body>
 <div id="root"></div>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
 <script src="flow.js"></script>

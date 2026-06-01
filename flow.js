@@ -62,6 +62,10 @@
     const copyEls = hero.querySelectorAll(".hero-pe-on");
     if (!copyEls.length) return;
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Skip parallax on touch / narrow screens — the per-element transforms
+    // fight momentum scrolling and can overlap copy on small viewports.
+    if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.innerWidth < 860) return;
 
     let ticking = false;
     function update() {
