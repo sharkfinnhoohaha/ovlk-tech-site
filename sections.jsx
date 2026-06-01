@@ -379,9 +379,11 @@ function ProcessSection({ density, accent }) {
   const [hovering, setHovering] = React.useState(false);
   const stepRefs = React.useRef([]);
 
-  // Auto-advance, pause on hover/focus
+  // Auto-advance, pause on hover/focus. Respect reduced-motion — leave it
+  // on whichever step the visitor selects rather than cycling on its own.
   React.useEffect(() => {
     if (hovering) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => setActive((a) => (a + 1) % steps.length), 5800);
     return () => clearInterval(id);
   }, [hovering, steps.length]);

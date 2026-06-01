@@ -28,16 +28,20 @@ function Nav({ accent, sectionsOn }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close the mobile menu on Escape or when the viewport grows past mobile
+  // Close the mobile menu on Escape or when the viewport grows past mobile.
+  // While open, lock background scroll so the page doesn't move behind it.
   React.useEffect(() => {
     if (!menuOpen) return;
     const onKey = (e) => { if (e.key === "Escape") setMenuOpen(false); };
     const onResize = () => { if (window.innerWidth > 860) setMenuOpen(false); };
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
+      document.body.style.overflow = prevOverflow;
     };
   }, [menuOpen]);
 
@@ -167,7 +171,8 @@ function Nav({ accent, sectionsOn }) {
 
         {/* MENU TOGGLE (mobile only — shown via CSS under 860px) */}
         <button className="ovlk-nav-toggle" aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}>
+          aria-expanded={menuOpen} aria-controls="ovlk-mobile-menu"
+          onClick={() => setMenuOpen((o) => !o)}>
           {menuOpen ? (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -181,15 +186,18 @@ function Nav({ accent, sectionsOn }) {
       </nav>
 
       {/* MOBILE MENU SHEET */}
-      <div className={"ovlk-mobile-menu" + (menuOpen ? " is-open" : "")}>
+      <div id="ovlk-mobile-menu" className={"ovlk-mobile-menu" + (menuOpen ? " is-open" : "")}
+           aria-hidden={!menuOpen}>
         {items.map((it) => (
           <a key={it.id} href={`#${it.id}`} onClick={(e) => scrollTo(e, it.id)}
+             tabIndex={menuOpen ? 0 : -1}
              className={it.id === active ? "is-active" : ""}>
             <span className="ovlk-mm-idx">{String(allItems.findIndex(a => a.id === it.id) + 1).padStart(2, "0")}</span>
             <span>{it.label}</span>
           </a>
         ))}
-        <a href="#contact" onClick={(e) => scrollTo(e, "contact")} className="ovlk-mm-cta">
+        <a href="#contact" onClick={(e) => scrollTo(e, "contact")} className="ovlk-mm-cta"
+           tabIndex={menuOpen ? 0 : -1}>
           Start a project
         </a>
       </div>

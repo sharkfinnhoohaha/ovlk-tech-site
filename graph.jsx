@@ -428,7 +428,7 @@
     }, [interactive]);
 
     return (
-      <div ref={wrapRef} style={{ position: "absolute", inset: 0 }}>
+      <div ref={wrapRef} aria-hidden="true" style={{ position: "absolute", inset: 0 }}>
         <canvas ref={canvasRef} style={{ display: "block" }} />
       </div>
     );

@@ -33,6 +33,34 @@ const KINDS = [
 const TIMELINES = ["This month", "1–3 months", "3–6 months", "Just exploring"];
 const BUDGETS   = ["Under 10k", "10–25k", "25–50k", "50k+", "Not sure"];
 
+/* ------------------------------------------------------------
+   Form delivery config
+   ------------------------------------------------------------
+   Point FORM_ENDPOINT at a form backend (Formspree, a Vercel
+   serverless function, Resend proxy, etc.) and submissions POST
+   there as JSON. Leave it empty and the form gracefully falls
+   back to composing a pre-filled email to the studio — so the
+   form is never a dead end, even before a backend is wired up.
+   ------------------------------------------------------------ */
+const FORM_ENDPOINT = ""; // e.g. "https://formspree.io/f/abcdwxyz"
+const STUDIO_EMAIL  = "studio@ovlk.tech";
+
+function buildMailto({ kind, timeline, budget, name, email, details }) {
+  const k = KINDS.find((x) => x.id === kind);
+  const subject = `Project enquiry — ${k ? k.label : "OVLK Tech"}`;
+  const body = [
+    `Name: ${name || "—"}`,
+    `Email: ${email || "—"}`,
+    `Kind: ${k ? k.label : "—"}`,
+    `Timeline: ${timeline || "—"}`,
+    `Budget: ${budget || "—"}`,
+    "",
+    "Details:",
+    details || "—",
+  ].join("\n");
+  return `mailto:${STUDIO_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 function ContactSection({ density, accent }) {
   const py = density === "compact" ? 120 : 180;
 
@@ -163,6 +191,8 @@ function ProjectForm({ accent }) {
   const [email, setEmail]     = React.useState("");
   const [details, setDetails] = React.useState("");
   const [sending, setSending] = React.useState(false);
+  const [error, setError]     = React.useState(null);
+  const [viaEmail, setViaEmail] = React.useState(false);
 
   const stepNames = ["Kind", "Shape", "Details", "Sent"];
 
@@ -173,19 +203,41 @@ function ProjectForm({ accent }) {
     return true;
   })();
 
-  function next() {
-    if (!canAdvance) return;
-    if (step === 2) {
-      setSending(true);
-      setTimeout(() => { setSending(false); setStep(3); }, 700);
-    } else {
-      setStep((s) => Math.min(3, s + 1));
+  async function submit() {
+    const payload = { kind, timeline, budget, name, email, details, source: "ovlk.tech /start" };
+    setSending(true);
+    setError(null);
+    try {
+      if (FORM_ENDPOINT) {
+        const res = await fetch(FORM_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        setViaEmail(false);
+      } else {
+        // No backend wired up yet — hand off to the user's email client
+        window.location.href = buildMailto(payload);
+        setViaEmail(true);
+      }
+      setSending(false);
+      setStep(3);
+    } catch (e) {
+      setSending(false);
+      setError(`Couldn't send that just now — please email ${STUDIO_EMAIL} directly.`);
     }
+  }
+
+  function next() {
+    if (!canAdvance || sending) return;
+    if (step === 2) { submit(); }
+    else { setStep((s) => Math.min(3, s + 1)); }
   }
   function back() { setStep((s) => Math.max(0, s - 1)); }
   function reset() {
     setStep(0); setKind(null); setTimeline(null); setBudget(null);
-    setName(""); setEmail(""); setDetails("");
+    setName(""); setEmail(""); setDetails(""); setError(null); setViaEmail(false);
   }
 
   return (
@@ -240,10 +292,27 @@ function ProjectForm({ accent }) {
           <StepSent
             accent={accent}
             summary={{ kind, timeline, budget, name, email }}
+            viaEmail={viaEmail}
             onReset={reset}
           />
         )}
       </div>
+
+      {/* Error banner */}
+      {error && step < 3 && (
+        <div role="alert" style={{
+          margin: "0 28px", padding: "14px 16px",
+          border: "1px solid rgba(200,90,63,0.5)",
+          background: "rgba(200,90,63,0.12)",
+          color: "#f0c4ba",
+          fontFamily: "'Geist', sans-serif", fontSize: 13.5, lineHeight: 1.5,
+        }}>
+          {error}{" "}
+          <a href={`mailto:${STUDIO_EMAIL}`} className="ovlk-link-sweep" style={{ color: "#fff" }}>
+            {STUDIO_EMAIL}
+          </a>
+        </div>
+      )}
 
       {/* Step footer */}
       {step < 3 && (
@@ -399,7 +468,7 @@ function inputStyle(accent) {
 }
 
 /* ---------- Step 4: Sent ---------- */
-function StepSent({ accent, summary, onReset }) {
+function StepSent({ accent, summary, viaEmail, onReset }) {
   const k = KINDS.find((x) => x.id === summary.kind);
   return (
     <div style={{ paddingTop: 16 }}>
@@ -411,14 +480,26 @@ function StepSent({ accent, summary, onReset }) {
           width: 8, height: 8, borderRadius: "50%", background: accent,
           boxShadow: `0 0 12px ${accent}88`,
         }} />
-        Sent
+        {viaEmail ? "Almost there" : "Sent"}
       </div>
       <h3 style={{
         marginTop: 24,
         fontFamily: "'Geist', sans-serif", fontWeight: 500,
         fontSize: "clamp(1.7rem, 3vw, 2.4rem)", letterSpacing: "-0.025em",
         lineHeight: 1.15, color: "#fff",
-      }}>Thanks, {summary.name || "friend"} — we'll be in touch within a working day.</h3>
+      }}>{viaEmail
+        ? `We've opened an email for you, ${summary.name || "friend"} — just hit send.`
+        : `Thanks, ${summary.name || "friend"} — we'll be in touch within a working day.`}</h3>
+      {viaEmail && (
+        <p style={{
+          marginTop: 14, maxWidth: "42ch",
+          fontFamily: "'Geist', sans-serif", fontSize: 14.5, lineHeight: 1.6,
+          color: TEXT_C_MUTE,
+        }}>
+          If nothing popped up, reach us directly at{" "}
+          <a href={`mailto:${STUDIO_EMAIL}`} className="ovlk-link-sweep" style={{ color: "#fff" }}>{STUDIO_EMAIL}</a>.
+        </p>
+      )}
 
       <div className="ovlk-cols-4" style={{
         marginTop: 40, paddingTop: 28, borderTop: RULE_C,
