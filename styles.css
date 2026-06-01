@@ -6,6 +6,18 @@
   }
 
   html, body { margin: 0; background: var(--ovlk-bg); color: #fff; }
+
+  /* Skip-to-content — hidden until focused via keyboard */
+  .ovlk-skip {
+    position: fixed; top: 8px; left: 8px; z-index: 2147483647;
+    transform: translateY(-150%);
+    background: var(--ovlk-accent, #4a9d97); color: #08121b;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 12px 18px; text-decoration: none; border-radius: 2px;
+    transition: transform 200ms ease;
+  }
+  .ovlk-skip:focus { transform: translateY(0); outline: none; }
   body {
     font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -131,8 +143,8 @@
     cursor: pointer;
     text-decoration: none;
     user-select: none;
-    /* Faint resting shadow — just enough to suggest it lifts */
-    box-shadow: 0 3px 0 0 rgba(255,255,255,0.10);
+    /* Minimalist at rest — flat, no offset shadow. The lift lives on hover. */
+    box-shadow: none;
     transform: translateY(0);
     transition:
       transform 360ms var(--ovlk-spring),
@@ -148,8 +160,8 @@
     background: var(--ovlk-accent, #4a9d97);
     border-color: var(--ovlk-accent, #4a9d97);
     color: #0a1a26;
-    box-shadow: 0 6px 0 0 color-mix(in oklab, var(--ovlk-accent, #4a9d97) 60%, transparent),
-                0 14px 32px -10px color-mix(in oklab, var(--ovlk-accent, #4a9d97) 70%, transparent);
+    /* Single soft glow — cleaner than the old stacked hard+blur shadow */
+    box-shadow: 0 10px 30px -12px color-mix(in oklab, var(--ovlk-accent, #4a9d97) 75%, transparent);
   }
   .ovlk-btn-primary:active {
     transform: translateY(3px) scale(0.985);
@@ -254,7 +266,7 @@
     cursor: pointer;
     text-decoration: none;
     user-select: none;
-    box-shadow: 0 3px 0 0 rgba(255,255,255,0.12);
+    box-shadow: none;
     transform: translateY(0);
     transition:
       transform 360ms var(--ovlk-spring),
@@ -268,7 +280,7 @@
     transform: translateY(-2px);
     border-color: var(--ovlk-accent, #4a9d97);
     background: rgba(74,157,151,0.10);
-    box-shadow: 0 5px 0 0 rgba(74,157,151,0.35);
+    box-shadow: 0 10px 24px -14px rgba(74,157,151,0.55);
   }
   .ovlk-btn-ghost:active {
     transform: translateY(2px) scale(0.985);
@@ -537,4 +549,188 @@
   /* Hide cursor when our custom cursor is on (only on fine pointer) */
   @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
     body.ovlk-cursor-active, body.ovlk-cursor-active * { /* keep native cursor — halo augments */ }
+  }
+
+  /* ====================================================
+     Responsive + touch layer
+     ----------------------------------------------------
+     The component tree is styled with inline styles (desktop-
+     first). These rules use class hooks + !important to reflow
+     those fixed grids on narrow screens and to make the touch
+     experience calm and tappable. Breakpoints:
+       - 860px : tablet / large-phone landscape — start stacking
+       - 560px : phone — single column, tighter rhythm
+     ==================================================== */
+
+  /* Touch: no sticky hover transforms, generous tap targets ------ */
+  @media (hover: none) {
+    .ovlk-btn-primary:hover,
+    .ovlk-btn-ghost:hover,
+    .ovlk-chip:hover,
+    .ovlk-tcard:hover {
+      transform: none;
+    }
+    /* The primary CTA's hover arrow swap never fires on touch —
+       keep the resting arrow visible instead of a blank well. */
+    .ovlk-btn-primary .ovlk-btn-arrow.is-outgoing { opacity: 1; }
+  }
+  @media (pointer: coarse) {
+    .ovlk-btn-primary { height: 44px; }
+    .ovlk-btn-primary .ovlk-btn-aside {
+      width: 36px; height: 36px; flex-basis: 36px;
+    }
+    .ovlk-btn-ghost { padding: 13px 20px; }
+    .ovlk-chip      { padding: 13px 18px; }
+    /* Scroll-snap fights momentum scrolling on touch — turn it off */
+    html { scroll-snap-type: none; }
+  }
+
+  /* ---- Shared layout hooks ---- */
+  @media (max-width: 860px) {
+    /* Page gutter — pull the 36px inline gutter in to 22px */
+    .ovlk-pad { padding-left: 22px !important; padding-right: 22px !important; }
+
+    /* Section vertical rhythm — the inline 180/96px is far too tall
+       for a phone; settle to a calm but compact scale */
+    .ovlk-section { padding-top: 92px !important; padding-bottom: 92px !important; }
+
+    /* Generic multi-column grids collapse to one column */
+    .ovlk-cols-2,
+    .ovlk-cols-3,
+    .ovlk-num-row,
+    .ovlk-process-grid,
+    .ovlk-case-row {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    /* Four-up meta rows fold to two columns (short labels read fine) */
+    .ovlk-cols-4,
+    .ovlk-hero-legend {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 28px !important;
+    }
+
+    /* Approach stats: stacked cells get a top rule instead of a
+       right rule, and lose the asymmetric inline padding */
+    .ovlk-stat-cell {
+      padding: 28px 0 !important;
+      border-right: none !important;
+      border-top: 1px solid rgba(255,255,255,0.10);
+    }
+    .ovlk-stat-cell:first-child { border-top: none; }
+
+    /* Services list: drop the trailing arrow column, tighten index */
+    .ovlk-service-row {
+      grid-template-columns: 40px 1fr !important;
+      gap: 18px !important;
+      padding: 26px 0 !important;
+    }
+    .ovlk-service-row .ovlk-service-arrow { display: none; }
+    /* No hover on touch — reveal the example tags inline */
+    .ovlk-service-examples {
+      max-height: none !important;
+      opacity: 1 !important;
+      margin-top: 14px !important;
+    }
+
+    /* Process stage panel: shorter, lighter padding on phones */
+    .ovlk-process-stage { min-height: 0 !important; padding: 24px !important; }
+    /* The keyboard/hover hint row is desktop-only — hide it on touch */
+    .ovlk-process-hint { display: none !important; }
+
+    /* Featured work: image sits below the copy, not beside it */
+    .ovlk-case-row { padding: 40px 0 !important; }
+    .ovlk-case-row .case-img { aspect-ratio: 16 / 10; }
+
+    /* Contact lede CTA reads better left-aligned once stacked */
+    .ovlk-cta-row { justify-content: flex-start !important; }
+
+    /* Intake "kind" cards stack with bottom rules between them */
+    .ovlk-kind-grid { grid-template-columns: 1fr !important; }
+    .ovlk-kind-card {
+      border-right: none !important;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      padding: 22px 20px !important;
+    }
+    .ovlk-kind-card:last-child { border-bottom: none; }
+
+    /* Footer: collapse the 12-col grid into a single column */
+    .ovlk-footer-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
+    .ovlk-footer-grid > * { grid-column: 1 / -1 !important; }
+    .ovlk-footer-base {
+      flex-direction: column !important;
+      gap: 10px !important;
+      align-items: flex-start !important;
+    }
+
+    /* Hero: pull the copy in and let it breathe vertically */
+    .ovlk-hero-inner { padding: 96px 22px 36px !important; }
+    /* Centred graph sits behind the copy — dim it so text stays legible */
+    .ovlk-hero-graph { opacity: 0.5 !important; }
+  }
+
+  @media (max-width: 560px) {
+    .ovlk-section { padding-top: 72px !important; padding-bottom: 72px !important; }
+    /* On the smallest screens even the meta rows go single-file */
+    .ovlk-cols-4,
+    .ovlk-hero-legend {
+      grid-template-columns: 1fr !important;
+      gap: 22px !important;
+    }
+    .ovlk-hero-inner { padding: 88px 20px 32px !important; }
+  }
+
+  /* ---- Mobile nav menu ---- */
+  .ovlk-nav-toggle { display: none; }
+  @media (max-width: 860px) {
+    /* Hide the inline desktop section list + CTA, show the toggle */
+    .ovlk-nav-desktop { display: none !important; }
+    .ovlk-nav-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      background: transparent; border: none; cursor: pointer;
+      color: #fff; justify-self: end;
+      -webkit-tap-highlight-color: transparent;
+      /* Sit above the open menu sheet so the X stays tappable to close */
+      position: relative; z-index: 60;
+    }
+    .ovlk-nav-toggle svg { display: block; }
+    /* Let the mark + toggle share a simple two-column bar */
+    .ovlk-nav-bar { grid-template-columns: 1fr auto !important; }
+  }
+
+  /* Full-height mobile menu takeover */
+  .ovlk-mobile-menu {
+    position: fixed; inset: 0; z-index: 49;
+    min-height: 100vh; min-height: 100svh;
+    overflow-y: auto;
+    background: rgba(8,12,20,0.97);
+    -webkit-backdrop-filter: blur(24px) saturate(120%);
+    backdrop-filter: blur(24px) saturate(120%);
+    padding: 88px 22px 36px;
+    display: flex; flex-direction: column; gap: 4px;
+    transform: translateY(-12px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 280ms var(--apple-ease, ease),
+                transform 280ms var(--apple-ease, ease);
+  }
+  .ovlk-mobile-menu.is-open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .ovlk-mobile-menu a {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.78); text-decoration: none;
+    padding: 16px 4px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .ovlk-mobile-menu a:last-of-type { border-bottom: none; }
+  .ovlk-mobile-menu a .ovlk-mm-idx {
+    font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.2em;
+  }
+  .ovlk-mobile-menu a.is-active { color: #fff; }
+  .ovlk-mobile-menu a.is-active .ovlk-mm-idx { color: var(--ovlk-accent, #4a9d97); }
+  .ovlk-mobile-menu .ovlk-mm-cta {
+    margin-top: 18px; justify-content: center;
+    border: 1px solid var(--ovlk-accent, #4a9d97);
+    color: var(--ovlk-accent, #4a9d97);
+    letter-spacing: 0.18em;
   }

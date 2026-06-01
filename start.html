@@ -2,14 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OVLK / TECH — Start a project</title>
+<meta name="description" content="Start a project with OVLK Tech. Four short steps — what kind of project, the shape of it, and how to reach you. We answer within a working day.">
+<meta name="theme-color" content="#0a2230">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ovlk.tech/start">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OVLK / TECH">
+<meta property="og:title" content="OVLK / TECH — Start a project">
+<meta property="og:description" content="Tell us what you're building. Four short steps; we answer within a working day.">
+<meta property="og:url" content="https://ovlk.tech/start">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="mask-icon" href="/assets/favicon.svg" color="#4a9d97">
 
 <link rel="stylesheet" href="colors_and_type.css">
 <link rel="stylesheet" href="styles.css">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
@@ -110,16 +126,27 @@
     font-size: 14px; color: rgba(255,255,255,0.85);
   }
 
+  @media (max-width: 860px) {
+    .sap-nav   { padding: 0 22px; }
+    .sap-shell { padding: 40px 22px 72px; }
+  }
   @media (max-width: 720px) {
     .sap-meta { grid-template-columns: 1fr 1fr; gap: 24px; }
+  }
+  @media (max-width: 560px) {
+    .sap-meta { grid-template-columns: 1fr; gap: 20px; }
+    /* Shorten the back link so it doesn't crowd the mark on small phones */
+    .sap-nav .ovlk-btn-ghost span:last-child { display: none; }
+    .sap-nav .ovlk-btn-ghost { padding: 13px 16px; }
   }
 </style>
 </head>
 <body>
+<a href="#main" class="ovlk-skip">Skip to content</a>
 <div id="root"></div>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
 <script src="flow.js"></script>
@@ -162,7 +189,7 @@
           </a>
         </header>
 
-        <main className="sap-shell">
+        <main id="main" className="sap-shell">
           <span className="sap-eyebrow">
             <span className="sap-dot">05</span>
             <span className="sap-sep">//</span>

@@ -62,15 +62,15 @@ const PY_COMPACT = 96;
 function IntroBlock({ density, accent }) {
   const py = pad(density, PY_CALM, PY_COMPACT);
   return (
-    <section id="studio" data-screen-label="Approach" style={{ padding: `${py}px 0` }}>
-      <div style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
+    <section id="studio" className="ovlk-section" data-screen-label="Approach" style={{ padding: `${py}px 0` }}>
+      <div className="ovlk-pad" style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
         <SectionHeader
           idx="01" label="Approach" accent={accent}
           title="A studio of one, shaped to your project."
           deck="OVLK Tech is new — by design. Every engagement starts with a conversation, not a package. We listen for the actual problem, then build the smallest durable thing that solves it."
         />
 
-        <div className="reveal" style={{
+        <div className="reveal ovlk-cols-2" style={{
           marginTop: 64,
           display: "grid", gridTemplateColumns: "1fr 1fr", gap: 96,
         }}>
@@ -98,7 +98,7 @@ function IntroBlock({ density, accent }) {
         </div>
 
         {/* 3 stat-style facts */}
-        <div className="reveal" style={{
+        <div className="reveal ovlk-cols-3" style={{
           marginTop: 96,
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0,
           borderTop: RULE,
@@ -108,7 +108,7 @@ function IntroBlock({ density, accent }) {
             ["02", "Weekly billing", "Pause, scale up, scale down. No retainers, no contracts."],
             ["03", "Clean handoff", "Documentation, ownership, and the keys. Your code, your call."],
           ].map(([n, h, p], i) => (
-            <div key={n} style={{
+            <div key={n} className="ovlk-stat-cell" style={{
               padding: i === 0 ? "48px 40px 40px 0" : "48px 40px 40px 40px",
               borderRight: i < 2 ? RULE : "none",
             }}>
@@ -155,8 +155,8 @@ const SERVICES = [
 function ServicesGrid({ style: variant = "list", density, accent }) {
   const py = pad(density, PY_CALM, PY_COMPACT);
   return (
-    <section id="services" data-screen-label="What we build" style={{ padding: `${py}px 0` }}>
-      <div style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
+    <section id="services" className="ovlk-section" data-screen-label="What we build" style={{ padding: `${py}px 0` }}>
+      <div className="ovlk-pad" style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
         <SectionHeader
           idx="02" label="What we build" accent={accent}
           title="Four shapes the work usually takes."
@@ -181,6 +181,7 @@ function ServicesList({ accent }) {
         const isDim   = hoverIdx !== null && hoverIdx !== i;
         return (
           <li key={s.idx}
+              className="ovlk-service-row"
               onMouseEnter={() => setHoverIdx(i)}
               style={{
                 display: "grid",
@@ -216,8 +217,8 @@ function ServicesList({ accent }) {
                 fontFamily: "'Geist', ui-sans-serif, system-ui, sans-serif",
                 fontSize: 15.5, lineHeight: 1.6, color: TEXT_SOFT,
               }}>{s.summary}</p>
-              {/* Examples reveal on hover */}
-              <div style={{
+              {/* Examples reveal on hover (always shown on touch via CSS) */}
+              <div className="ovlk-service-examples" style={{
                 marginTop: 16,
                 maxHeight: isHover ? 36 : 0, opacity: isHover ? 1 : 0,
                 overflow: "hidden",
@@ -233,7 +234,7 @@ function ServicesList({ accent }) {
                 ))}
               </div>
             </div>
-            <span style={{
+            <span className="ovlk-service-arrow" style={{
               fontFamily: "'Geist Mono', ui-monospace, monospace",
               fontSize: 18, color: isHover ? TEXT : TEXT_DEEP,
               transform: isHover ? "translate(8px, -2px)" : "none",
@@ -248,7 +249,7 @@ function ServicesList({ accent }) {
 
 function ServicesCards({ accent }) {
   return (
-    <div className="reveal" style={{
+    <div className="reveal ovlk-cols-2" style={{
       marginTop: 56,
       display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24,
     }}>
@@ -307,7 +308,7 @@ function ServicesNumbered({ accent }) {
   return (
     <div className="reveal" style={{ marginTop: 56 }}>
       {SERVICES.map((s) => (
-        <div key={s.idx} style={{
+        <div key={s.idx} className="ovlk-num-row" style={{
           display: "grid",
           gridTemplateColumns: "160px 1fr 1fr",
           gap: 48, alignItems: "start",
@@ -378,9 +379,11 @@ function ProcessSection({ density, accent }) {
   const [hovering, setHovering] = React.useState(false);
   const stepRefs = React.useRef([]);
 
-  // Auto-advance, pause on hover/focus
+  // Auto-advance, pause on hover/focus. Respect reduced-motion — leave it
+  // on whichever step the visitor selects rather than cycling on its own.
   React.useEffect(() => {
     if (hovering) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => setActive((a) => (a + 1) % steps.length), 5800);
     return () => clearInterval(id);
   }, [hovering, steps.length]);
@@ -405,17 +408,17 @@ function ProcessSection({ density, accent }) {
   const railTop = active * 64 + 19; // matches step row height + offset
 
   return (
-    <section id="process" data-screen-label="Process" style={{ padding: `${py}px 0` }}
+    <section id="process" className="ovlk-section" data-screen-label="Process" style={{ padding: `${py}px 0` }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}>
-      <div style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
+      <div className="ovlk-pad" style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
         <SectionHeader
           idx="03" label="Process" accent={accent}
           title="How we work, in four steps."
           deck="No proposal-document theatre, no kickoff slides. The work starts the day you say go."
         />
 
-        <div className="reveal" style={{
+        <div className="reveal ovlk-process-grid" style={{
           marginTop: 64,
           display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: 80,
           alignItems: "start",
@@ -472,7 +475,7 @@ function ProcessSection({ density, accent }) {
               })}
             </ol>
 
-            <div style={{
+            <div className="ovlk-process-hint" style={{
               marginTop: 36, paddingTop: 24, borderTop: RULE,
               display: "flex", gap: 24, alignItems: "center",
               ...META_SM, color: TEXT_DEEP,
@@ -486,7 +489,7 @@ function ProcessSection({ density, accent }) {
           </div>
 
           {/* RIGHT — animated visualization */}
-          <div style={{
+          <div className="ovlk-process-stage" style={{
             position: "relative",
             border: RULE,
             background: "rgba(255,255,255,0.015)",
@@ -740,8 +743,8 @@ function FeaturedWork({ density, accent }) {
   ];
 
   return (
-    <section id="work" data-screen-label="Selected work" style={{ padding: `${py}px 0` }}>
-      <div style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
+    <section id="work" className="ovlk-section" data-screen-label="Selected work" style={{ padding: `${py}px 0` }}>
+      <div className="ovlk-pad" style={{ maxWidth: "82rem", margin: "0 auto", padding: "0 36px" }}>
         <SectionHeader
           idx="04" label="Selected work" accent={accent}
           title="A short list, on purpose."
@@ -752,7 +755,7 @@ function FeaturedWork({ density, accent }) {
           {cases.map((c, i) => (
             <a key={c.title} href="#" onClick={(e) => e.preventDefault()}
                style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-              <div style={{
+              <div className="ovlk-case-row" style={{
                 display: "grid",
                 gridTemplateColumns: "1.2fr 1fr",
                 gap: 56, alignItems: "center",
